@@ -1,16 +1,11 @@
 //Given two promises promise1 and promise2, return a new promise. promise1 and promise2 will both resolve with a number. The returned promise should resolve with the sum of the two numbers.
 
 async function addTwoPromises(promise1: Promise<number>, promise2: Promise<number>): Promise<number> {
-  let total: number = 0;
-  return promise1
-    .then(value => {
-      total = value;
-      return promise2;
-    })
-    .then(res => {
-      total += res;
-      return total;
+  return promise1.then(async value => {
+    return promise2.then(res => {
+      return res + value;
     });
+  });
 }
 
 const promise1 = new Promise<number>(resolve => setTimeout(() => resolve(2), 20));
