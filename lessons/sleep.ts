@@ -1,5 +1,5 @@
 async function sleep(millis: number): Promise<number> {
-  return new Promise(async resolve => setTimeout(() => resolve(millis), millis));
+  return await new Promise(resolve => setTimeout(() => resolve(millis), millis));
 }
 
 let t = Date.now();

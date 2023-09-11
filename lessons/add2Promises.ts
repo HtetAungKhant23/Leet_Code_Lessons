@@ -5,8 +5,8 @@ interface IGeneric {
 }
 
 async function addTwoPromises<T extends IGeneric>(promise1: Promise<T>, promise2: Promise<T>): Promise<T> {
-  return promise1.then(async value1 => {
-    return promise2.then(async value2 => {
+  return await promise1.then(async value1 => {
+    return await promise2.then(value2 => {
       return { value: value1.value + value2.value } as T;
     });
   });
