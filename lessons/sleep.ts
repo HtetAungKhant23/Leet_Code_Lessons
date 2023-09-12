@@ -2,8 +2,8 @@ async function sleep(millis: number): Promise<number> {
   return await new Promise(resolve => setTimeout(() => resolve(millis), millis));
 }
 
-let t = Date.now();
+let time = Date.now();
 sleep(100).then(val => {
   console.log(val);
-  console.log(Date.now() - t); // 100
+  console.log(Date.now() - time); // 100
 });
