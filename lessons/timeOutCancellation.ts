@@ -10,24 +10,68 @@
 //   };
 // }
 
-const fn = (x: number) => x * 5;
-const args: number[] = [2];
-const t: number = 20;
-const cancelT: number = 50;
+// const fn = (x: number) => x * 5;
+// const args: number[] = [2];
+// const t: number = 20;
+// const cancelT: number = 50;
 
-// const cancel = cancellable((x: number) => x * 5, [2], 20); // fn(2) called at t=20ms
-const cancel = cancellable(fn, args, t); // fn(2) called at t=20ms
-const hay = setTimeout(cancel, cancelT);
-// console.log(hay);
+// // const cancel = cancellable((x: number) => x * 5, [2], 20); // fn(2) called at t=20ms
+// const cancel = cancellable(fn, args, t); // fn(2) called at t=20ms
+// const hay = setTimeout(cancel, cancelT);
+// // console.log(hay);
 
-function cancellable(fn: Function, args: any[], t: number): Function {
-  return () => {
-    const id = setTimeout(() => {
-        const result = fn(...args);
-        return [{time: t, return: result}]
-    }, t);
-      console.log(id)
+// function cancellable(fn: Function, args: any[], t: number): Function {
+//   return () => {
+//     const id = setTimeout(() => {
+//         const result = fn(...args);
+//         return [{time: t, return: result}]
+//     }, t);
+//       console.log(id)
+//   };
+// }
+
+// console.log(cancellable(fn, args, t)());
+
+type CancelFunction = () => void;
+
+function executeWithDelay<T>(fn: (...args: any[]) => T, args: any[], t: number): [Promise<T>, CancelFunction] {
+  let timerId: NodeJS.Timeout | null = null;
+  let isCanceled = false;
+
+  const cancelFn: CancelFunction = () => {
+    if (timerId !== null) {
+      clearTimeout(timerId);
+      timerId = null;
+      isCanceled = true;
+    }
   };
+
+  const promise = new Promise<T>((resolve, reject) => {
+    timerId = setTimeout(() => {
+      if (!isCanceled) {
+        try {
+          const result = fn(...args);
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      }
+    }, t);
+  });
+
+  return [promise, cancelFn];
 }
 
-console.log(cancellable(fn, args, t)());
+const [promise, cancelFn] = executeWithDelay((x: number, y: number) => x + y, [2, 3], 2000);
+
+promise
+  .then((result) => {
+    console.log("Result:", result); // This will be called after 2 seconds if not canceled
+  })
+  .catch((error) => {
+    console.error("Error:", error);
+  });
+
+const cancellable = cancelFn
+// To cancel the execution before the delay:
+// cancelFn();
